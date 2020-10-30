@@ -1815,11 +1815,6 @@ static void processDexFile(const char* fileName,
     dumpFileHeader(pDexFile);
   }
 
-  // Open XML context.
-  if (gOptions.outputFormat == OUTPUT_XML) {
-    fprintf(gOutFile, "<api>\n");
-  }
-
   // Iterate over all classes.
   char* package = nullptr;
   const u4 classDefsSize = pDexFile->GetHeader().class_defs_size_;
@@ -1841,11 +1836,6 @@ static void processDexFile(const char* fileName,
   if (package != nullptr) {
     fprintf(gOutFile, "</package>\n");
     free(package);
-  }
-
-  // Close XML context.
-  if (gOptions.outputFormat == OUTPUT_XML) {
-    fprintf(gOutFile, "</api>\n");
   }
 }
 
@@ -1890,8 +1880,18 @@ int processFile(const char* fileName) {
   if (gOptions.checksumOnly) {
     fprintf(gOutFile, "Checksum verified\n");
   } else {
+    // Open XML context.
+    if (gOptions.outputFormat == OUTPUT_XML) {
+      fprintf(gOutFile, "<api>\n");
+    }
+
     for (size_t i = 0, n = dex_files.size(); i < n; i++) {
       processDexFile(fileName, dex_files[i].get(), i, n);
+    }
+
+    // Close XML context.
+    if (gOptions.outputFormat == OUTPUT_XML) {
+      fprintf(gOutFile, "</api>\n");
     }
   }
   return 0;
